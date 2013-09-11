@@ -1,0 +1,4 @@
+jqgsobjectslider
+================
+
+Jquery Object Slider
