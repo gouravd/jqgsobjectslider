@@ -21,3 +21,9 @@ v 0.2
 Bug Fix:
 => Changed from setInterval to setTimeout
 => Set the variable for saving the timer in the element itself.
+
+v.0.2.2
+========
+Bug Fix: 
+=> Now accepting another parameter to check if we should clear timer or not
+=> We are also clearing timer during init
