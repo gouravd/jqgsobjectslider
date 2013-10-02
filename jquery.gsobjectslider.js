@@ -1,14 +1,14 @@
 /*******************
 *********************
 ****** Jquery Object Slider by Gourav das
-****** V 0.2
+****** V 0.2.2
 ****** Allows to slide any element synchronizing other elements. demo at https://www.groupshoppy.com
 ***********************
 ********************/
 
 
 (function ($) {
-	$.fn.gsObjectSlider = function (options) {
+    $.fn.gsObjectSlider = function (options, clear) {
 
 	    var settings = $.extend({}, {
 			'itemSelector': null,
@@ -22,9 +22,11 @@
 			'itemVisibleCount': 1,
 			'itemStartCount': 0,
 			'syncSelectorsStartCount': [0],
-            		'syncSelectorsVertical' : [false]
+            'syncSelectorsVertical' : [false]
 
 	    }, options);
+
+	    clear = clear === undefined ? 0 : clear;
 
 	    this.each(function () {
 	        var el = this;
@@ -32,6 +34,17 @@
 	        var $item = (settings.itemSelector == null) ? $el.first() : $(settings.itemSelector);
 	        var $parent = $el;
 	        var syncselectors = (settings.syncSelectors == null) ? new Array() : settings.syncSelectors.split(',');
+
+	        window.clearTimeout(el.infiniteLoop);
+	        el.infiniteLoop = null;
+
+	        if (clear === false) {
+	            if (settings.debug == true) {
+	                console.log("clearing timer");
+	            }
+	            window.clearTimeout(el.infiniteLoop);
+	            return;
+	        }
 
 			// Store the object
 	        $el.hover(function (ev) {
