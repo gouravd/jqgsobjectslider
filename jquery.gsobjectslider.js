@@ -1,7 +1,7 @@
 /*******************
 *********************
 ****** Jquery Object Slider by Gourav das
-****** V 0.1
+****** V 0.2
 ****** Allows to slide any element synchronizing other elements. demo at https://www.groupshoppy.com
 ***********************
 ********************/
@@ -10,7 +10,7 @@
 (function ($) {
 	$.fn.gsObjectSlider = function (options) {
 
-		var settings = $.extend({
+	    var settings = $.extend({}, {
 			'itemSelector': null,
 			'syncSelectors': null,
 			'initialFadeIn': 200,
@@ -21,31 +21,28 @@
 			'syncSelectorsVisibleCount': [1],
 			'itemVisibleCount': 1,
 			'itemStartCount': 0,
-			'syncSelectorsStartCount' : [0]
+			'syncSelectorsStartCount': [0],
+            		'syncSelectorsVertical' : [false]
 
-		}, options);
+	    }, options);
 
-		this.each(function () {
+	    this.each(function () {
+	        var el = this;
+	        var $el = $(this);
+	        var $item = (settings.itemSelector == null) ? $el.first() : $(settings.itemSelector);
+	        var $parent = $el;
+	        var syncselectors = (settings.syncSelectors == null) ? new Array() : settings.syncSelectors.split(',');
+
 			// Store the object
-
-			$(this).hover(function (ev) {
+	        $el.hover(function (ev) {
 				if (settings.debug == true) {
 					console.log('mouseovered');
 				}
 
-				clearInterval(infiniteLoop);
+				window.clearTimeout(el.infiniteLoop);
 			}, function (ev) {
-				infiniteLoop = setInterval(ObjectSlider, settings.itemInterval);
+			    el.infiniteLoop = window.setTimeout(ObjectSlider, settings.itemInterval);
 			});
-
-			var $this = $(this);
-			var $item = (settings.itemSelector == null) ? $($this).first() : $(settings.itemSelector);
-			var $parent = $($this);
-			var syncselectors = settings.syncSelectors.split(',');
-			//var selectorsItems = [];
-			//$(selectors).each(function (index, val) {
-			//    selectorsItems.push($(val).length)
-			//});
 
 			var numberOfItems = $($item).length;
 
@@ -67,7 +64,7 @@
 
 			//show first item
 			$(syncselectors).each(function (index, val) {
-				if (syncselectors.length == settings.syncSelectorsVisibleCount.length && syncselectors.length > 1 && syncselectors.length == settings.syncSelectorsStartCount.length) {
+			    if (syncselectors.length == settings.syncSelectorsVisibleCount.length && syncselectors.length > 1 && syncselectors.length == settings.syncSelectorsStartCount.length && syncselectors.length == settings.syncSelectorsVertical.length) {
 					syncSelectorsCurrentItem[index] = 0 + settings.syncSelectorsStartCount[index];
 					syncSelectorsNumberOfItems[index] = $(val).length;
 					var itemtoshow = syncSelectorsCurrentItem[index] + 1;
@@ -76,8 +73,15 @@
 							syncSelectorsCurrentItem[index] + x :
 							(syncSelectorsCurrentItem[index] + x) % Number(syncSelectorsNumberOfItems[index] - 1);
 
-						$(val).eq(itemtoshow).css('opacity', '1.0');
-						$(val).eq(itemtoshow).fadeIn(settings.initialFadeIn);
+						if (settings.syncSelectorsVertical[index] == true) {
+						    $(val).eq(itemtoshow).css('opacity', '1.0');
+						    $(val).eq(itemtoshow).fadeIn(settings.initialFadeIn);
+						}
+						else {
+						    $(val).eq(itemtoshow).css('opacity', '1.0');
+						    $(val).eq(itemtoshow).css('display', 'inline-block');
+						}
+
 					}
 
 					syncSelectorsNextItem[index] = itemtoshow + 1 < Number(syncSelectorsNumberOfItems[index]) ? itemtoshow + 1 : (itemtoshow + 1) % Number(syncSelectorsNumberOfItems[index]);
@@ -92,35 +96,35 @@
 						console.log('mouseovered');
 					}
 
-					clearInterval(infiniteLoop);
+					window.clearTimeout(el.infiniteLoop);
 				}, function (ev) {
-					infiniteLoop = setInterval(ObjectSlider, settings.itemInterval);
+				    el.infiniteLoop = window.setTimeout(ObjectSlider, settings.itemInterval);
 				});
 			});
 
+			$($item).eq(itemCurrentItem).css('opacity', '1.0');
 			$($item).eq(itemCurrentItem).fadeIn(settings.initialFadeIn);
-
-			//loop through the items
-			var infiniteLoop = setInterval(ObjectSlider, settings.itemInterval);
 
 			function ObjectSlider() {
 				if (settings.debug == true) {
 					console.log('Fading Item - ' + itemCurrentItem + ', Loading Item - ' + itemNextItem);
 				}
 				$(syncselectors).each(function (index, val) {
-					if ($(syncselectors).length == settings.syncSelectorsVisibleCount.length && $(syncselectors).length > 1) {
+				    if ($(syncselectors).length == settings.syncSelectorsVisibleCount.length && $(syncselectors).length > 1 && $(syncselectors).length == settings.syncSelectorsVertical.length) {
 						if (settings.debug == true) {
-							console.log('Item to show: ' + syncSelectorsCurrentItem[index]);
-							console.log('Item to hide: ' + syncSelectorsNextItem[index]);
+							console.log($(val).attr('class') + ': ' + syncSelectorsCurrentItem[index]);
+							console.log($(val).attr('class') + ': ' + syncSelectorsNextItem[index]);
 						}
 
-						console.log($(val).attr('class') + ': ' + syncSelectorsCurrentItem[index]);
-						console.log($(val).attr('class') + ': ' + syncSelectorsNextItem[index]);
-
 						$(val).eq(syncSelectorsCurrentItem[index]).fadeOut(settings.fadeTime, function () {
-							$(val).eq(syncSelectorsNextItem[index]).css('opacity', '1.0');
-							$(val).eq(syncSelectorsNextItem[index]).fadeIn(settings.fadeTime);
-
+						    if (settings.syncSelectorsVertical[index] == true) {
+						        $(val).eq(syncSelectorsNextItem[index]).css('opacity', '1.0');
+						        $(val).eq(syncSelectorsNextItem[index]).fadeIn(settings.fadeTime);
+						    }
+						    else {
+						        $(val).eq(syncSelectorsNextItem[index]).css('opacity', '1.0');
+						        $(val).eq(syncSelectorsNextItem[index]).css('display', 'inline-block');
+						    }
 
 							syncSelectorsCurrentItem[index] = syncSelectorsCurrentItem[index] + 1 < Number(syncSelectorsNumberOfItems[index]) ? syncSelectorsCurrentItem[index] + 1 : (syncSelectorsCurrentItem[index] + 1) % Number(syncSelectorsNumberOfItems[index]);
 							syncSelectorsNextItem[index] = syncSelectorsNextItem[index] + 1 < Number(syncSelectorsNumberOfItems[index]) ? syncSelectorsNextItem[index] + 1 : (syncSelectorsNextItem[index] + 1) % Number(syncSelectorsNumberOfItems[index]);
@@ -139,23 +143,31 @@
 					console.log('Next item to show:' + itemNextItem);
 				}
 
-				$($item).eq(itemCurrentItem).fadeOut(settings.fadeTime, function () {
-					$($item).eq(itemNextItem).fadeIn(settings.fadeTime);
+				if (itemNextItem != itemCurrentItem) {
+				    $($item).eq(itemCurrentItem).fadeOut(settings.fadeTime, function () {
+				        $($item).eq(itemNextItem).css('opacity', '1.0');
+				        $($item).eq(itemNextItem).fadeIn(settings.fadeTime);
 
-					itemNextItem++;
-					itemCurrentItem++;
-					if (itemNextItem > numberOfItems - 1) {
-						itemNextItem = 0;
+				        itemNextItem++;
+				        itemCurrentItem++;
+				        if (itemNextItem > numberOfItems - 1) {
+				            itemNextItem = 0;
 
-					}
-					if (itemCurrentItem > numberOfItems - 1) {
-						itemCurrentItem = 0;
-					}
+				        }
+				        if (itemCurrentItem > numberOfItems - 1) {
+				            itemCurrentItem = 0;
+				        }
 
-				});
+				    });
+				}
 			};
+
+	        //loop through the items
+			el.infiniteLoop = window.setTimeout(ObjectSlider, settings.itemInterval);
+
 		});
+
+		return this;
 	};
 
 })(jQuery);
-
