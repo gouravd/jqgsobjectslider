@@ -23,7 +23,12 @@ Bug Fix:
 => Set the variable for saving the timer in the element itself.
 
 v.0.2.2
-========
+--------
 Bug Fix: 
 => Now accepting another parameter to check if we should clear timer or not
 => We are also clearing timer during init
+
+v.0.3.0
+--------
+Bug Fix: 
+=> Added code to clear timers on page reload (used mainly in SPA)
