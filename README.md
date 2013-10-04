@@ -32,3 +32,9 @@ v.0.3.0
 --------
 Bug Fix: 
 => Added code to clear timers on page reload (used mainly in SPA)
+
+v.0.4.0
+--------
+Bug Fix: 
+* More robust timer clearance
+* More robust pauseOnHover
