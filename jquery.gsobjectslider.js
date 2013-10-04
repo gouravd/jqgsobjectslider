@@ -1,7 +1,7 @@
 /*******************
 *********************
 ****** Jquery Object Slider by Gourav das
-****** V 0.3.0
+****** V 0.4.0
 ****** Allows to slide any element synchronizing other elements. demo at https://www.groupshoppy.com
 ***********************
 ********************/
@@ -12,12 +12,14 @@
 
         var settings = $.extend({}, {
             'itemSelector': null,
+            'maxItemCount': 1,
             'syncSelectors': null,
             'initialFadeIn': 200,
             'itemInterval': 5000,
             'fadeTime': 300,
             'debug': false,
-            'pauseOnHover': true,
+            'itemPauseOnHover': true,
+            'syncSelectorsPauseOnHover': true,
             'syncSelectorsVisibleCount': [1],
             'itemVisibleCount': 1,
             'itemStartCount': 0,
@@ -34,15 +36,15 @@
             var $parent = $el;
             var syncselectors = (settings.syncSelectors == null) ? new Array() : settings.syncSelectors.split(',');
 
-                $('.hidden.gsslidertimerid').each(function (indexx, valx) {
-                    var timer = $(valx).attr('timer');
-                    if ($(valx).hasClass($(el).attr('class'))) {
-                        clearInterval(timer);
-                        $(valx).remove();
-                    }
-                });
-
-            var numberOfItems = $($item).length;
+            $('.gsslidertimerid').each(function (indexx, valx) {
+                var timer = $(valx).attr('timer');
+                if ($(valx).hasClass($(el).attr('class'))) {
+                    clearInterval(timer);
+                    $(valx).remove();
+                }
+            });
+            
+            var numberOfItems = Math.min($($item).length, settings.maxItemCount);
 
             if (settings.debug == true) {
                 console.log('Parent: ' + $parent.attr('class') || $parent.attr('id'));
@@ -53,8 +55,8 @@
             }
 
             //set current item
-            var itemCurrentItem = settings.itemStartCount < Number(numberOfItems - 1) ? settings.itemStartCount : settings.itemStartCount % Number(numberOfItems);
-            var itemNextItem = itemCurrentItem + 1 < Number(numberOfItems - 1) ? itemCurrentItem + 1 : (itemCurrentItem + 1) % Number(numberOfItems);
+            var itemCurrentItem = settings.itemStartCount <= Number(numberOfItems - 1) ? settings.itemStartCount : settings.itemStartCount % Number(numberOfItems);
+            var itemNextItem = itemCurrentItem + 1 <= Number(numberOfItems - 1) ? itemCurrentItem + 1 : (itemCurrentItem + 1) % Number(numberOfItems);
 
             var syncSelectorsCurrentItem = [];
             var syncSelectorsNextItem = [];
@@ -89,72 +91,41 @@
                     $(val).eq(itemCurrentItem).fadeIn(settings.initialFadeIn);
                 }
 
-                $(val).hover(function (ev) {
-                    var timer = $(el).attr('timer');
-                    window.clearInterval(timer);
+                if (settings.syncSelectorsPauseOnHover == true) {
+                    $(val).off('mouseover');
+                    $(val).off('mouseout');
 
-                    $('.hidden.gsslidertimerid').each(function (indexx, valx) {
-                        var timer = $(valx).attr('timer');
-                        if ($(valx).hasClass($(el).attr('class'))) {
-                            clearInterval(timer);
-                            $(valx).remove();
+                    $(val).on('mouseover', function (ev) {
+                        var timer = $(el).attr('timer');
+                        window.clearInterval(timer);
+                        $('#gsslidertimerid_' + timer).remove();
+
+                        $('.gsslidertimerid').each(function (indexx, valx) {
+                            var timer = $(valx).attr('timer');
+                            if ($(valx).hasClass($(el).attr('class'))) {
+                                clearInterval(timer);
+                                $(valx).remove();
+                            }
+                        });
+                    });
+
+                    $(val).on('mouseout', function (ev) {
+                        if (!$(el).hasClass('gsslidertimerid')) {
+                            var timer = window.setInterval(ObjectSlider, settings.itemInterval);
+                            $(el).attr('timer', timer);
+
+                            var div = $('<div id="gsslidertimerid_' + timer + '" class="gsslidertimerid" timer="' + timer + '" style="display:none;"></div>');
+                            $(div).addClass($(el).attr('class'));
+                            $('html').append($(div));
                         }
                     });
-                    $('#gsslidertimerid_' + timer).remove();
-                }, function (ev) {
-                    $('.hidden.gsslidertimerid').each(function (indexx, valx) {
-                        var timer = $(valx).attr('timer');
-                        if ($(valx).hasClass($(el).attr('class'))) {
-                            clearInterval(timer);
-                            $(valx).remove();
-                        }
-                    });
-                    $('#gsslidertimerid_' + timer).remove();
-
-                    var timer = window.setInterval(ObjectSlider, settings.itemInterval);
-                    $(el).attr('timer', timer);
-
-                    var div = $('<div id="gsslidertimerid_' + timer + '" class="hidden gsslidertimerid" timer="' + timer + '"></div>');
-                    $(div).addClass($(el).attr('class'));
-                    $('html').append($(div));
-                });
-
-                //$(val).hover(function (ev) {
-                //    try {
-                //        var timer = $(val).attr('timer');
-                //        window.clearInterval(timer);
-                //        $('.hidden.gsslidertimerid').each(function (indexx, valx) {
-                //            var timer = $(valx).attr('timer');
-                //            if ($(valx).hasClass($(val).attr('class'))) {
-                //                window.clearInterval(timer);
-                //                $(valx).remove();
-                //            }
-                //        });
-                //        $('#gsslidertimerid_' + timer).remove();
-                //    }
-                //    catch (e) {
-                //    }
-                //}, function (ev) {
-                //    var timer = window.setInterval(ObjectSlider, settings.itemInterval);
-                //    $(val).attr('timer', timer);
-                //    var div = $('<div id="gsslidertimerid_' + timer + '" class="hidden gsslidertimerid" timer="' + timer + '"></div>');
-                //    $(div).addClass($(val).attr('class'));
-                //    $('.hidden.gsslidertimerid').each(function (indexx, valx) {
-                //        var timer = $(valx).attr('timer');
-                //        if ($(valx).hasClass($(val).attr('class'))) {
-                //            window.clearInterval(timer);
-                //            $(valx).remove();
-                //        }
-                //    });
-                //    $('#gsslidertimerid_' + timer).remove();
-                //    $('body').append($(div));
-                //});
+                }
             });
 
             $($item).eq(itemCurrentItem).css('opacity', '1.0');
             $($item).eq(itemCurrentItem).fadeIn(settings.initialFadeIn);
 
-            function ObjectSlider() {
+            var ObjectSlider = function(){
                 if (settings.debug == true) {
                     console.log('Fading Item - ' + itemCurrentItem + ', Loading Item - ' + itemNextItem);
                 }
@@ -197,49 +168,20 @@
                         $($item).eq(itemNextItem).css('opacity', '1.0');
                         $($item).eq(itemNextItem).fadeIn(settings.fadeTime);
 
-                        itemNextItem++;
-                        itemCurrentItem++;
-                        if (itemNextItem > numberOfItems - 1) {
+                        ++itemNextItem;
+                        ++itemCurrentItem;
+
+                        if (itemNextItem > (numberOfItems - 1)) {
                             itemNextItem = 0;
 
                         }
-                        if (itemCurrentItem > numberOfItems - 1) {
+                        if (itemCurrentItem > (numberOfItems - 1)) {
                             itemCurrentItem = 0;
                         }
 
                     });
                 }
             };
-
-            $el.hover(function (ev) {
-                    var timer = $(el).attr('timer');
-                    window.clearInterval(timer);
-
-                    $('.hidden.gsslidertimerid').each(function (indexx, valx) {
-                        var timer = $(valx).attr('timer');
-                        if ($(valx).hasClass($(el).attr('class'))) {
-                            clearInterval(timer);
-                            $(valx).remove();
-                        }
-                    });
-                    $('#gsslidertimerid_' + timer).remove();
-            }, function (ev) {
-                $('.hidden.gsslidertimerid').each(function (indexx, valx) {
-                    var timer = $(valx).attr('timer');
-                    if ($(valx).hasClass($(el).attr('class'))) {
-                        clearInterval(timer);
-                        $(valx).remove();
-                    }
-                });
-                $('#gsslidertimerid_' + timer).remove();
-
-                var timer = window.setInterval(ObjectSlider, settings.itemInterval);
-                $(el).attr('timer', timer);
-
-                var div = $('<div id="gsslidertimerid_' + timer + '" class="hidden gsslidertimerid" timer="' + timer + '"></div>');
-                $(div).addClass($(el).attr('class'));
-                $('html').append($(div));
-            });
 
             var timer = window.setInterval(ObjectSlider, settings.itemInterval);
             $(el).attr('timer', timer);
@@ -251,20 +193,44 @@
                 timer = window.setInterval(ObjectSlider, settings.itemInterval);
                 $(el).attr('timer', timer);
 
-                var div = $('<div id="gsslidertimerid_' + timer + '" class="' + $(el).attr('class') + '"></div>');
+                var div = $('<div id="gsslidertimerid_' + timer + '" class="' + $(el).attr('class') + '" style="display:none;"></div>');
                 $(div).attr('timer', timer);
                 $('#gsslidertimerid_' + timer).remove();
                 $('html').append($(div));
             }
             else {
-                var div = $('<div id="gsslidertimerid_' + timer + '" class="hidden gsslidertimerid ' + $(el).attr('class') + '"></div>');
+                var div = $('<div id="gsslidertimerid_' + timer + '" class="gsslidertimerid ' + $(el).attr('class') + '" style="display:none;"></div>');
                 $(div).attr('timer', timer);
                 $('#gsslidertimerid_' + timer).remove();
                 $('html').append($(div));
             }
 
-        });
 
+            if (settings.itemPauseOnHover == true) {
+                $(el).hover(function (ev) {
+                    var timer = $(el).attr('timer');
+                    window.clearInterval(timer);
+                    $('#gsslidertimerid_' + timer).remove();
+
+                    $('.gsslidertimerid').each(function (indexx, valx) {
+                        var timer = $(valx).attr('timer');
+                        if ($(valx).hasClass($(el).attr('class'))) {
+                            clearInterval(timer);
+                            $(valx).remove();
+                        }
+                    });
+                }, function (ev) {
+
+                    var timer = window.setInterval(ObjectSlider, settings.itemInterval);
+                    $(el).attr('timer', timer);
+
+                    var div = $('<div id="gsslidertimerid_' + timer + '" class="gsslidertimerid" timer="' + timer + '" style="display:none;"></div>');
+                    $(div).addClass($(el).attr('class'));
+                    $('html').append($(div));
+                });
+            }
+        });
+        
         return this;
     };
 
