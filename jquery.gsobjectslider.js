@@ -93,7 +93,7 @@
 
                 if (settings.syncSelectorsPauseOnHover == true) {
                     $(val).off('mouseover');
-                    $(val).off('mouseout');
+                    //$(val).off('mouseout');
 
                     $(val).on('mouseover', function (ev) {
                         var timer = $(el).attr('timer');
