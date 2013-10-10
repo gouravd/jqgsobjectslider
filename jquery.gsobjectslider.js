@@ -125,7 +125,9 @@
             $($item).eq(itemCurrentItem).css('opacity', '1.0');
             $($item).eq(itemCurrentItem).fadeIn(settings.initialFadeIn);
 
-            var ObjectSlider = function(){
+            var ObjectSlider = function () {
+                numberOfItems = Math.min($($item).length, settings.maxItemCount);
+
                 if (settings.debug == true) {
                     console.log('Fading Item - ' + itemCurrentItem + ', Loading Item - ' + itemNextItem);
                 }
@@ -183,31 +185,39 @@
                 }
             };
 
-            var timer = window.setInterval(ObjectSlider, settings.itemInterval);
-            $(el).attr('timer', timer);
+            
+            if (numberOfItems > 1) {
+                var timer = window.setInterval(ObjectSlider, settings.itemInterval);
+                $(el).attr('timer', timer);
+            }
 
             if ($(el).hasClass('gsslidertimerid')) {
                 clearInterval(timer);
                 $('#gsslidertimerid_' + timer).remove();
 
-                timer = window.setInterval(ObjectSlider, settings.itemInterval);
-                $(el).attr('timer', timer);
+                if (numberOfItems > 1) {
+                    timer = window.setInterval(ObjectSlider, settings.itemInterval);
+                    $(el).attr('timer', timer);
 
-                var div = $('<div id="gsslidertimerid_' + timer + '" class="' + $(el).attr('class') + '" style="display:none;"></div>');
-                $(div).attr('timer', timer);
-                $('#gsslidertimerid_' + timer).remove();
-                $('html').append($(div));
+                    var div = $('<div id="gsslidertimerid_' + timer + '" class="' + $(el).attr('class') + '" style="display:none;"></div>');
+                    $(div).attr('timer', timer);
+                    $('#gsslidertimerid_' + timer).remove();
+                    $('html').append($(div));
+                }
             }
             else {
-                var div = $('<div id="gsslidertimerid_' + timer + '" class="gsslidertimerid ' + $(el).attr('class') + '" style="display:none;"></div>');
-                $(div).attr('timer', timer);
-                $('#gsslidertimerid_' + timer).remove();
-                $('html').append($(div));
+                if (numberOfItems > 1) {
+                    var div = $('<div id="gsslidertimerid_' + timer + '" class="gsslidertimerid ' + $(el).attr('class') + '" style="display:none;"></div>');
+                    $(div).attr('timer', timer);
+                    $('#gsslidertimerid_' + timer).remove();
+                    $('html').append($(div));
+                }
             }
 
 
             if (settings.itemPauseOnHover == true) {
                 $(el).hover(function (ev) {
+                    ev.stopPropagation();
                     var timer = $(el).attr('timer');
                     window.clearInterval(timer);
                     $('#gsslidertimerid_' + timer).remove();
@@ -220,13 +230,23 @@
                         }
                     });
                 }, function (ev) {
-
+                    ev.stopPropagation();
                     var timer = window.setInterval(ObjectSlider, settings.itemInterval);
-                    $(el).attr('timer', timer);
+                    if (numberOfItems > 1) {
+                        $(el).attr('timer', timer);
 
-                    var div = $('<div id="gsslidertimerid_' + timer + '" class="gsslidertimerid" timer="' + timer + '" style="display:none;"></div>');
-                    $(div).addClass($(el).attr('class'));
-                    $('html').append($(div));
+                        $('.gsslidertimerid').each(function (indexx, valx) {
+                            var timer = $(valx).attr('timer');
+                            if ($(valx).hasClass($(el).attr('class'))) {
+                                clearInterval(timer);
+                                $(valx).remove();
+                            }
+                        });
+
+                        var div = $('<div id="gsslidertimerid_' + timer + '" class="gsslidertimerid" timer="' + timer + '" style="display:none;"></div>');
+                        $(div).addClass($(el).attr('class'));
+                        $('html').append($(div));
+                    }
                 });
             }
         });
