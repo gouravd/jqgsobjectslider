@@ -122,6 +122,14 @@
                 }
             });
 
+            $($item).eq(itemCurrentItem).imageScale({
+                //parent_css_selector: '.ourcatboxcontent.' + val.nvar_CATEGORY_ID, // Defaults to the image's immediate parent.
+                scale: 'fill',
+                center: true,
+                fade_duration: 1000, // Fading is disabled if set to 0.
+                rescale_after_resize: true
+            });
+
             $($item).eq(itemCurrentItem).css('opacity', '1.0');
             $($item).eq(itemCurrentItem).fadeIn(settings.initialFadeIn);
 
@@ -167,6 +175,13 @@
 
                 if (itemNextItem != itemCurrentItem) {
                     $($item).eq(itemCurrentItem).fadeOut(settings.fadeTime, function () {
+                        $($item).eq(itemNextItem).imageScale({
+                            //parent_css_selector: '.ourcatboxcontent.' + val.nvar_CATEGORY_ID, // Defaults to the image's immediate parent.
+                            scale: 'fill',
+                            center: true,
+                            fade_duration: 1000, // Fading is disabled if set to 0.
+                            rescale_after_resize: true
+                        });
                         $($item).eq(itemNextItem).css('opacity', '1.0');
                         $($item).eq(itemNextItem).fadeIn(settings.fadeTime);
 
