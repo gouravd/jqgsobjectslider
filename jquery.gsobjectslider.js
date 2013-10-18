@@ -1,7 +1,7 @@
 /*******************
 *********************
 ****** Jquery Object Slider by Gourav das
-****** V 0.4.0
+****** V 0.4.1
 ****** Allows to slide any element synchronizing other elements. demo at https://www.groupshoppy.com
 ***********************
 ********************/
@@ -24,7 +24,8 @@
             'itemVisibleCount': 1,
             'itemStartCount': 0,
             'syncSelectorsStartCount': [0],
-            'syncSelectorsVertical': [false]
+            'syncSelectorsVertical': [false],
+            'useLazyLoad': false
 
         }, options);
         
@@ -44,6 +45,12 @@
                 }
             });
             
+            if (settings.useLazyLoad == true) {
+                $($item).lazyload({
+                    event: "forcedload"
+                });
+            }
+
             var numberOfItems = Math.min($($item).length, settings.maxItemCount);
 
             if (settings.debug == true) {
@@ -124,6 +131,9 @@
 
 
             if (!$($item).eq(itemCurrentItem).hasClass('scaled')) {
+                if (settings.useLazyLoad == true) {
+                    $($item).eq(itemCurrentItem).trigger('forcedload');
+                }
                 $($item).eq(itemCurrentItem).imageScale({
                     //parent_css_selector: '.ourcatboxcontent.' + val.nvar_CATEGORY_ID, // Defaults to the image's immediate parent.
                     scale: 'fill',
@@ -180,6 +190,9 @@
                 if (itemNextItem != itemCurrentItem) {
                     $($item).eq(itemCurrentItem).fadeOut(settings.fadeTime, function () {
                         if (!$($item).eq(itemNextItem).hasClass('scaled')) {
+                            if (settings.useLazyLoad == true) {
+                                $($item).eq(itemNextItem).trigger('forcedload');
+                            }
                             $($item).eq(itemNextItem).imageScale({
                                 //parent_css_selector: '.ourcatboxcontent.' + val.nvar_CATEGORY_ID, // Defaults to the image's immediate parent.
                                 scale: 'fill',
@@ -202,7 +215,6 @@
                         if (itemCurrentItem > (numberOfItems - 1)) {
                             itemCurrentItem = 0;
                         }
-
                     });
                 }
             };
