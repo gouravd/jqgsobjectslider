@@ -1,7 +1,7 @@
 /*******************
 *********************
 ****** Jquery Object Slider by Gourav das
-****** V 0.4.1
+****** V 0.4.2
 ****** Allows to slide any element synchronizing other elements. demo at https://www.groupshoppy.com
 ***********************
 ********************/
@@ -25,7 +25,8 @@
             'itemStartCount': 0,
             'syncSelectorsStartCount': [0],
             'syncSelectorsVertical': [false],
-            'useLazyLoad': false
+            'useLazyLoad': false,
+            'imageScaleType': 'fill'
 
         }, options);
         
@@ -136,7 +137,7 @@
                 }
                 $($item).eq(itemCurrentItem).imageScale({
                     //parent_css_selector: '.ourcatboxcontent.' + val.nvar_CATEGORY_ID, // Defaults to the image's immediate parent.
-                    scale: 'fill',
+                    scale: settings.imageScaleType,
                     center: true,
                     fade_duration: 1000, // Fading is disabled if set to 0.
                     rescale_after_resize: true
@@ -195,7 +196,7 @@
                             }
                             $($item).eq(itemNextItem).imageScale({
                                 //parent_css_selector: '.ourcatboxcontent.' + val.nvar_CATEGORY_ID, // Defaults to the image's immediate parent.
-                                scale: 'fill',
+                                scale: settings.imageScaleType,
                                 center: true,
                                 fade_duration: 1000, // Fading is disabled if set to 0.
                                 rescale_after_resize: true
