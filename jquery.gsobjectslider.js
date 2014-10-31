@@ -1,7 +1,7 @@
 /*******************
 *********************
 ****** Jquery Object Slider by Gourav das
-****** V 0.4.2
+****** V 0.4.3
 ****** Allows to slide any element synchronizing other elements. demo at https://www.groupshoppy.com
 ***********************
 ********************/
@@ -26,9 +26,14 @@
             'syncSelectorsStartCount': [0],
             'syncSelectorsVertical': [false],
             'useLazyLoad': false,
-            'imageScaleType': 'fill'
+            'imageScaleType': 'fill',
+            'noloadImage': null
 
         }, options);
+        
+        $('img').error(function () {
+            $(this).attr('src', settings.noloadImage);
+        });
         
         this.each(function () {
 
